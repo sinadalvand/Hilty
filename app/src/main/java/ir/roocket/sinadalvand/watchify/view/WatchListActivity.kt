@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.GsonBuilder
 import ir.roocket.sinadalvand.watchify.R
+import ir.roocket.sinadalvand.watchify.WatchifyApplication
 import ir.roocket.sinadalvand.watchify.data.model.Movie
 import ir.roocket.sinadalvand.watchify.utils.MovieValue
 import ir.roocket.sinadalvand.watchify.view.adapter.MovieRecyclerAdapter
@@ -30,10 +31,10 @@ class WatchListActivity : AppCompatActivity() {
 
         setupRecycler()
 
-        val gson = GsonBuilder().create()
-        val sp = this.getSharedPreferences("app", Context.MODE_PRIVATE)
-        val movieValue = MovieValue(gson,sp)
-        model = WatchListActivityViewModel(movieValue)
+
+        val container = (application as WatchifyApplication).container
+
+        model = WatchListActivityViewModel(container.movieValue)
 
 
         model.movies.observe(this){

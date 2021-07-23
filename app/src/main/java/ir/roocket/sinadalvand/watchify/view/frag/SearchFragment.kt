@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.gson.GsonBuilder
 import ir.roocket.sinadalvand.watchify.R
+import ir.roocket.sinadalvand.watchify.WatchifyApplication
 import ir.roocket.sinadalvand.watchify.data.model.Movie
 import ir.roocket.sinadalvand.watchify.data.remote.MovieApiInterface
 import ir.roocket.sinadalvand.watchify.repository.MoviesSearchRepository
@@ -44,17 +45,9 @@ class SearchFragment : Fragment(), MovieRecyclerAdapter.MovieSelectListener {
 
         setupRecycler()
 
-        val gson = GsonBuilder().create()
 
-        val sp = requireContext().getSharedPreferences("app", Context.MODE_PRIVATE)
-        val movieValue = MovieValue(gson, sp)
-
-
-        val retrofit = Retrofit.Builder().baseUrl("https://www.moviesapi.ir/api/v1/")
-            .addConverterFactory(GsonConverterFactory.create(gson)).build()
-        val api = retrofit.create(MovieApiInterface::class.java)
-        val repo = MoviesSearchRepository(api)
-        model = WatchAddActivityViewModel(repo,movieValue)
+        val container = (requireActivity().application as WatchifyApplication).container
+        model = WatchAddActivityViewModel(container.movieSearchRepo,container.movieValue)
 
 
 
