@@ -11,8 +11,10 @@ import com.google.gson.GsonBuilder
 import com.ozcanalasalvar.library.view.datePicker.DatePicker
 import ir.roocket.sinadalvand.watchify.R
 import ir.roocket.sinadalvand.watchify.WatchifyApplication
+import ir.roocket.sinadalvand.watchify.WatchifyContainer
 import ir.roocket.sinadalvand.watchify.data.model.Movie
 import ir.roocket.sinadalvand.watchify.data.remote.MovieApiInterface
+import ir.roocket.sinadalvand.watchify.di.MovieAddFlow
 import ir.roocket.sinadalvand.watchify.repository.MoviesSearchRepository
 import ir.roocket.sinadalvand.watchify.utils.CalendarUtils.toDate
 import ir.roocket.sinadalvand.watchify.utils.MovieValue
@@ -28,6 +30,8 @@ class DateFragment : Fragment(), DatePicker.DataSelectListener {
     private var movie: Movie? = null
 
     lateinit var model:WatchAddActivityViewModel
+
+    lateinit var container:WatchifyContainer
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,8 +50,8 @@ class DateFragment : Fragment(), DatePicker.DataSelectListener {
             saveMovie(movie!!)
         }
 
-        val container = (requireActivity().application as WatchifyApplication).container
-        model = WatchAddActivityViewModel(container.movieSearchRepo,container.movieValue)
+        container = (requireActivity().application as WatchifyApplication).container
+        model = container.movieAddFlow!!.watchAddActivityViewModel
 
         movie =  model.selectedMovie
 
@@ -76,6 +80,11 @@ class DateFragment : Fragment(), DatePicker.DataSelectListener {
             model.saveMovie(movie)
         }
         requireActivity().finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        container.movieAddFlow = null
     }
 
     override fun onDateSelected(date: Long, day: Int, month: Int, year: Int) {

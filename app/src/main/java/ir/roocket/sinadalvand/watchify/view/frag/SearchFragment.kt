@@ -15,6 +15,7 @@ import ir.roocket.sinadalvand.watchify.R
 import ir.roocket.sinadalvand.watchify.WatchifyApplication
 import ir.roocket.sinadalvand.watchify.data.model.Movie
 import ir.roocket.sinadalvand.watchify.data.remote.MovieApiInterface
+import ir.roocket.sinadalvand.watchify.di.MovieAddFlow
 import ir.roocket.sinadalvand.watchify.repository.MoviesSearchRepository
 import ir.roocket.sinadalvand.watchify.utils.MovieValue
 import ir.roocket.sinadalvand.watchify.view.WatchAddActivity
@@ -47,7 +48,8 @@ class SearchFragment : Fragment(), MovieRecyclerAdapter.MovieSelectListener {
 
 
         val container = (requireActivity().application as WatchifyApplication).container
-        model = WatchAddActivityViewModel(container.movieSearchRepo,container.movieValue)
+        container.movieAddFlow = MovieAddFlow(container.movieSearchRepo,container.movieValue)
+        model = container.movieAddFlow!!.watchAddActivityViewModel
 
 
 

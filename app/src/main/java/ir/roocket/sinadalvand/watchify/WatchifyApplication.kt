@@ -4,6 +4,11 @@ import android.app.Application
 
 class WatchifyApplication : Application() {
 
-    val container = WatchifyContainer(this)
-    
+    lateinit var container:WatchifyContainer
+
+
+    override fun onCreate() {
+        super.onCreate()
+        container = WatchifyContainer(this)
+    }
 }
