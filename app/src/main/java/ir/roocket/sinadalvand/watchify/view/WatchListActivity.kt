@@ -34,7 +34,7 @@ class WatchListActivity : AppCompatActivity() {
 
         val container = (application as WatchifyApplication).container
 
-        model = WatchListActivityViewModel(container.movieValue)
+        model = container.watchListViewModelFactory.create()
 
 
         model.movies.observe(this){
