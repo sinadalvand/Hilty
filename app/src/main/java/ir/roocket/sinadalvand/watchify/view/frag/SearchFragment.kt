@@ -1,5 +1,6 @@
 package ir.roocket.sinadalvand.watchify.view.frag
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import ir.roocket.sinadalvand.watchify.R
 import ir.roocket.sinadalvand.watchify.data.model.Movie
 import ir.roocket.sinadalvand.watchify.data.remote.MovieApiInterface
 import ir.roocket.sinadalvand.watchify.repository.MoviesSearchRepository
+import ir.roocket.sinadalvand.watchify.utils.MovieValue
 import ir.roocket.sinadalvand.watchify.view.WatchAddActivity
 import ir.roocket.sinadalvand.watchify.view.adapter.MovieRecyclerAdapter
 import ir.roocket.sinadalvand.watchify.viewmodel.WatchAddActivityViewModel
@@ -26,6 +28,7 @@ class SearchFragment : Fragment(), MovieRecyclerAdapter.MovieSelectListener {
 
     lateinit var adapter: MovieRecyclerAdapter
 
+    lateinit var model: WatchAddActivityViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,21 +44,35 @@ class SearchFragment : Fragment(), MovieRecyclerAdapter.MovieSelectListener {
 
         setupRecycler()
 
+        val gson = GsonBuilder().create()
 
-        // TODO make ViewModel to request to "https://www.moviesapi.ir/api/v1/"
+        val sp = requireContext().getSharedPreferences("app", Context.MODE_PRIVATE)
+        val movieValue = MovieValue(gson, sp)
+
+
+        val retrofit = Retrofit.Builder().baseUrl("https://www.moviesapi.ir/api/v1/")
+            .addConverterFactory(GsonConverterFactory.create(gson)).build()
+        val api = retrofit.create(MovieApiInterface::class.java)
+        val repo = MoviesSearchRepository(api)
+        model = WatchAddActivityViewModel(repo,movieValue)
+
+
 
         fragment_search_input.doOnTextChanged { text, _, _, _ ->
-            if ((text?.length ?: 0) > 3){
-                // TODO call search function into ViewModel
+            if ((text?.length ?: 0) > 3) {
+               model.searchMovie(text.toString())
             }
 
         }
 
-        //TODO observe movies into Viewmodel to call SetupMovies()
+        model.movies.observe(viewLifecycleOwner){
+            if(it!=null)
+                setupMovies(it)
+        }
 
     }
 
-    private fun setupRecycler(){
+    private fun setupRecycler() {
         adapter = MovieRecyclerAdapter()
         adapter.onMovieSelectListener(this)
         fragment_search_recycler.adapter = adapter
@@ -66,7 +83,7 @@ class SearchFragment : Fragment(), MovieRecyclerAdapter.MovieSelectListener {
     }
 
     override fun onSelectMovie(movie: Movie) {
-        // TODO set selected movie into Viewmodel
+        model.selectedMovie = movie
         findNavController().navigate(R.id.dateFragment)
     }
 }

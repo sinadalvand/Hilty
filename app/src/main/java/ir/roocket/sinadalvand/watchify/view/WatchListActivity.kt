@@ -1,17 +1,24 @@
 package ir.roocket.sinadalvand.watchify.view
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.google.gson.GsonBuilder
 import ir.roocket.sinadalvand.watchify.R
 import ir.roocket.sinadalvand.watchify.data.model.Movie
+import ir.roocket.sinadalvand.watchify.utils.MovieValue
 import ir.roocket.sinadalvand.watchify.view.adapter.MovieRecyclerAdapter
+import ir.roocket.sinadalvand.watchify.viewmodel.WatchListActivityViewModel
 import kotlinx.android.synthetic.main.activity_watchlist.*
 import kotlinx.android.synthetic.main.fragment_search.*
 
 class WatchListActivity : AppCompatActivity() {
 
-    private lateinit var adapter:MovieRecyclerAdapter
+    private lateinit var adapter: MovieRecyclerAdapter
+
+    private lateinit var model: WatchListActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +30,19 @@ class WatchListActivity : AppCompatActivity() {
 
         setupRecycler()
 
+        val gson = GsonBuilder().create()
+        val sp = this.getSharedPreferences("app", Context.MODE_PRIVATE)
+        val movieValue = MovieValue(gson,sp)
+        model = WatchListActivityViewModel(movieValue)
 
-        // TODO provide viewModel dependency
+
+        model.movies.observe(this){
+            setupMovies(it)
+        }
 
     }
 
-    private fun setupRecycler(){
+    private fun setupRecycler() {
         adapter = MovieRecyclerAdapter()
         activity_watchlist_recycler.adapter = adapter
     }
@@ -36,7 +50,7 @@ class WatchListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        //TODO request to get movies from ViewModel
+        model.getMovies()
     }
 
     private fun setupMovies(movies: ArrayList<Movie>) {
